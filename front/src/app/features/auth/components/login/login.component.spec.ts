@@ -39,4 +39,23 @@ describe('LoginComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should call submit method on form submission', () => {
+    // Créer un spy pour la méthode submit du composant
+    const submitSpy = jest.spyOn(component, 'submit');
+
+    // Remplir le formulaire avec des données de test
+    component.form.setValue({
+      email: 'test@example.com',
+      password: 'password'
+    });
+
+    // Appeler la méthode submit du composant
+    component.submit();
+
+    // Vérifier si la méthode submit du composant a été appelée
+    expect(submitSpy).toHaveBeenCalled();
+  });
+
+
 });

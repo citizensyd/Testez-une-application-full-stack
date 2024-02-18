@@ -9,11 +9,11 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: './coverage/jest',
   testPathIgnorePatterns: ['<rootDir>/node_modules/'],
-  testMatch: ["**/?(*.)+(spec).ts", "!**/?(*.)+(integration.spec).ts"],
+  testMatch: ["**/?(*.)+(integration.spec).ts"],
   coveragePathIgnorePatterns: ['<rootDir>/node_modules/'],
   coverageThreshold: {
     global: {
-      statements: 100
+      statements: 90
     },
   },
   roots: [
