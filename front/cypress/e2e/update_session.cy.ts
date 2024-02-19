@@ -1,4 +1,4 @@
-describe('Create and Delete Session Spec', () => {
+describe('Create and Update Session Spec', () => {
   beforeEach(() => {
     // Interceptions communes pour les tests
     cy.intercept('POST', '/api/auth/login', {
@@ -17,7 +17,7 @@ describe('Create and Delete Session Spec', () => {
     cy.url().should('include', '/sessions');
   });
 
-  it('should create and then delete a session', () => {
+  it('should create and update a session', () => {
     // Données de la session à créer
     const newSessionData = {
       "id": 3,
@@ -29,6 +29,10 @@ describe('Create and Delete Session Spec', () => {
       "createdAt": "2024-02-17T16:56:56.6730881",
       "updatedAt": "2024-02-17T16:56:56.7070921"
     };
+
+    const updateSessionData = {
+      "name": "Update Name"
+    }
 
     // Interception pour la création de la session
     cy.intercept('POST', '/api/session', {
@@ -57,14 +61,22 @@ describe('Create and Delete Session Spec', () => {
     cy.wait('@createSession');
 
     // Interception pour la suppression de la session
-    cy.intercept('DELETE', `/api/session/${newSessionData.id}`, {
+    cy.intercept('PUT', `/api/session/${newSessionData.id}`, {
       statusCode: 200
-    }).as('deleteSession');
+    }).as('updateSession');
+
+    cy.contains('button', 'Close').click();
 
     // Suppression de la session
-    cy.contains('button', 'Detail').click();
-    cy.contains('button', 'Delete').click();
-    cy.wait('@deleteSession').its('response.statusCode').should('eq', 200);
+    cy.contains('button', 'Edit').click();
+
+    // Changer le nom de la session
+    cy.get('input[formControlName=name]').type(updateSessionData.name);
+
+    // Suppression de la session
+    cy.contains('button', 'Save').click();
+
+    cy.wait('@updateSession').its('response.statusCode').should('eq', 200);
 
     // Vérification du retour à la page des sessions
     cy.url().should('include', '/sessions');
