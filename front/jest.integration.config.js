@@ -7,6 +7,9 @@ module.exports = {
   bail: false,
   verbose: false,
   collectCoverage: true,
+  collectCoverageFrom: [
+    'src/**/*.ts',
+  ],
   coverageDirectory: './coverage/jest',
   testPathIgnorePatterns: ['<rootDir>/node_modules/'],
   testMatch: ["**/?(*.)+(integration.spec).ts"],
