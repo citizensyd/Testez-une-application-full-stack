@@ -1,35 +1,40 @@
 package com.openclassrooms.controllers;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.openclassrooms.starterjwt.controllers.AuthController;
-import com.openclassrooms.starterjwt.payload.request.LoginRequest;
-import com.openclassrooms.starterjwt.payload.request.SignupRequest;
-import com.openclassrooms.starterjwt.payload.response.JwtResponse;
-import com.openclassrooms.starterjwt.payload.response.MessageResponse;
-import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
+import com.openclassrooms.starterjwt.models.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
-
-import com.openclassrooms.starterjwt.security.jwt.JwtUtils;
-import com.openclassrooms.starterjwt.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openclassrooms.starterjwt.payload.request.LoginRequest;
+import com.openclassrooms.starterjwt.payload.request.SignupRequest;
+import com.openclassrooms.starterjwt.repository.UserRepository;
+import com.openclassrooms.starterjwt.security.jwt.JwtUtils;
+import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
+
 @ExtendWith(MockitoExtension.class)
 public class AuthControllerTest {
 
-    @Mock
-    private AuthenticationManager authenticationManager;
+    private MockMvc mockMvc;
 
     @Mock
-    private JwtUtils jwtUtils;
+    private AuthenticationManager authenticationManager;
 
     @Mock
     private UserRepository userRepository;
@@ -37,63 +42,65 @@ public class AuthControllerTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private JwtUtils jwtUtils;
+
     @InjectMocks
     private AuthController authController;
 
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+    }
+
     @Test
-    void authenticateUser_whenValidUser_shouldReturnJwtResponse() {
+    public void authenticateUser_ShouldReturnJwt() throws Exception {
         // Arrange
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("user@example.com");
         loginRequest.setPassword("password");
+        Authentication authentication = org.mockito.Mockito.mock(Authentication.class);
+        UserDetailsImpl userDetails = new UserDetailsImpl(1L, "user@example.com", "FirstName", "LastName", false, "password");
+        String fakeToken = "fake-jwt-token";
 
-        Authentication authentication = mock(Authentication.class);
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
-        when(jwtUtils.generateJwtToken(authentication)).thenReturn("jwtToken");
-
-        UserDetailsImpl userDetails = new UserDetailsImpl(
-                1L,
-                "user@example.com",
-                "John",
-                "Doe",
-                true,
-                "password"
-        );
         when(authentication.getPrincipal()).thenReturn(userDetails);
+        when(jwtUtils.generateJwtToken(authentication)).thenReturn(fakeToken);
 
-        // Act
-        ResponseEntity<?> response = authController.authenticateUser(loginRequest);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getBody() instanceof JwtResponse);
-        JwtResponse jwtResponse = (JwtResponse) response.getBody();
-        assertEquals("jwtToken", jwtResponse.getToken());
-        assertEquals("John", jwtResponse.getFirstName());
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value(fakeToken));
     }
 
     @Test
-    void registerUser_whenNewUser_shouldReturnSuccessMessage() {
+    public void registerUser_ShouldReturnSuccessMessage() throws Exception {
         // Arrange
         SignupRequest signUpRequest = new SignupRequest();
         signUpRequest.setEmail("newuser@example.com");
-        signUpRequest.setFirstName("John");
-        signUpRequest.setLastName("Doe");
+        signUpRequest.setLastName("LastName");
+        signUpRequest.setFirstName("FirstName");
         signUpRequest.setPassword("password");
+        when(userRepository.existsByEmail(signUpRequest.getEmail())).thenReturn(false);
+        when(passwordEncoder.encode(signUpRequest.getPassword())).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(new User());
 
-        when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-
-        // Act
-        ResponseEntity<?> response = authController.registerUser(signUpRequest);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getBody() instanceof MessageResponse);
-        MessageResponse messageResponse = (MessageResponse) response.getBody();
-        assertEquals("User registered successfully!", messageResponse.getMessage());
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(signUpRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("User registered successfully!"));
     }
 
+    // Helper method to convert object into JSON string
+    public static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
