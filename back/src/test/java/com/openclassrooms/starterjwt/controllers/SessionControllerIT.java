@@ -24,6 +24,8 @@ import java.util.Date;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -98,7 +100,7 @@ public class SessionControllerIT {
         String jsonContent = objectMapper.writeValueAsString(sessionDto);
         System.out.println(jsonContent);
 
-        when(sessionService.create(any(Session.class))).thenReturn(session);
+        doReturn(session).when(sessionService).create(any());
         when(sessionMapper.toDto(any(Session.class))).thenReturn(sessionDto);
 
         mockMvc.perform(post("/api/session")
@@ -128,7 +130,7 @@ public class SessionControllerIT {
         session.setDate(sessionDto.getDate());
         session.setDescription(sessionDto.getDescription());
 
-        when(sessionService.update(eq(1L), any(Session.class))).thenReturn(session); // Utilise eq(1L) pour spécifier l'ID attendu
+        when(sessionService.update(eq(1L), any())).thenReturn(session); // Utilise eq(1L) pour spécifier l'ID attendu
         when(sessionMapper.toDto(any(Session.class))).thenReturn(sessionDto);
 
         mockMvc.perform(put("/api/session/1")

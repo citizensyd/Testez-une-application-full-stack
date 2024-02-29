@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +31,20 @@ public class TeacherServiceIT {
     @Test
     public void findAll_ShouldReturnAllTeachers() {
         // Arrange
-        Teacher teacher1 = new Teacher(/* initialise tes données */);
-        Teacher teacher2 = new Teacher(/* initialise tes données */);
+        Teacher teacher1 = Teacher.builder()
+                .id(1L)
+                .lastName("Doe")
+                .firstName("John")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+        Teacher teacher2 = Teacher.builder()
+                .id(2L)
+                .lastName("Smith")
+                .firstName("Anna")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
         given(teacherRepository.findAll()).willReturn(Arrays.asList(teacher1, teacher2));
 
         // Act
@@ -43,7 +57,13 @@ public class TeacherServiceIT {
     @Test
     public void findById_WhenTeacherExists_ShouldReturnTeacher() {
         // Arrange
-        Teacher teacher = new Teacher(/* initialise tes données */);
+        Teacher teacher = Teacher.builder()
+                .id(3L)
+                .lastName("Brown")
+                .firstName("David")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
         given(teacherRepository.findById(teacher.getId())).willReturn(Optional.of(teacher));
 
         // Act
@@ -52,6 +72,7 @@ public class TeacherServiceIT {
         // Assert
         assertThat(foundTeacher).isEqualTo(teacher);
     }
+
 
     @Test
     public void findById_WhenTeacherDoesNotExist_ShouldReturnNull() {
