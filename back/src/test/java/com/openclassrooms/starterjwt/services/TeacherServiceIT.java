@@ -1,35 +1,37 @@
 package com.openclassrooms.starterjwt.services;
 
 import com.openclassrooms.starterjwt.models.Teacher;
-import com.openclassrooms.starterjwt.services.TeacherService;
+import com.openclassrooms.starterjwt.repository.TeacherRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-@SpringBootTest
-@AutoConfigureMockMvc
 public class TeacherServiceIT {
 
-    @Autowired
+    @Mock
+    private TeacherRepository teacherRepository;
+
+    @InjectMocks
     private TeacherService teacherService;
 
-    @Autowired
-    private TestEntityManager entityManager;
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void findAll_ShouldReturnAllTeachers() {
-        // Arrange - ajouter des enseignants dans la base de données
+        // Arrange
         Teacher teacher1 = new Teacher(/* initialise tes données */);
         Teacher teacher2 = new Teacher(/* initialise tes données */);
-        entityManager.persist(teacher1);
-        entityManager.persist(teacher2);
-        entityManager.flush();
+        given(teacherRepository.findAll()).willReturn(Arrays.asList(teacher1, teacher2));
 
         // Act
         List<Teacher> teachers = teacherService.findAll();
@@ -42,7 +44,7 @@ public class TeacherServiceIT {
     public void findById_WhenTeacherExists_ShouldReturnTeacher() {
         // Arrange
         Teacher teacher = new Teacher(/* initialise tes données */);
-        entityManager.persistAndFlush(teacher);
+        given(teacherRepository.findById(teacher.getId())).willReturn(Optional.of(teacher));
 
         // Act
         Teacher foundTeacher = teacherService.findById(teacher.getId());
@@ -53,11 +55,14 @@ public class TeacherServiceIT {
 
     @Test
     public void findById_WhenTeacherDoesNotExist_ShouldReturnNull() {
+        // Arrange
+        long invalidId = -1L;
+        given(teacherRepository.findById(invalidId)).willReturn(Optional.empty());
+
         // Act
-        Teacher foundTeacher = teacherService.findById(-1L); // ID inexistant
+        Teacher foundTeacher = teacherService.findById(invalidId);
 
         // Assert
         assertThat(foundTeacher).isNull();
     }
 }
-
