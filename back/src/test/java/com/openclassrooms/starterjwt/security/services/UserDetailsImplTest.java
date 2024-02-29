@@ -1,4 +1,4 @@
-package com.openclassrooms.security.services;
+package com.openclassrooms.starterjwt.security.services;
 
 import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
 import org.junit.jupiter.api.Test;

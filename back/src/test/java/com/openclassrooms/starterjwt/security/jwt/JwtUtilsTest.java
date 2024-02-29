@@ -1,4 +1,4 @@
-package com.openclassrooms.security.jwt;
+package com.openclassrooms.starterjwt.security.jwt;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

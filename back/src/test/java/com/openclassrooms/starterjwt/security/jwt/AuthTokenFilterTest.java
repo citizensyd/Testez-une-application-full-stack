@@ -1,4 +1,4 @@
-package com.openclassrooms.security.jwt;
+package com.openclassrooms.starterjwt.security.jwt;
 
 import com.openclassrooms.starterjwt.security.jwt.AuthTokenFilter;
 import com.openclassrooms.starterjwt.security.jwt.JwtUtils;

@@ -1,4 +1,4 @@
-package com.openclassrooms.controllers;
+package com.openclassrooms.starterjwt.controllers;
 
 import com.openclassrooms.starterjwt.controllers.UserController;
 import com.openclassrooms.starterjwt.mapper.UserMapper;

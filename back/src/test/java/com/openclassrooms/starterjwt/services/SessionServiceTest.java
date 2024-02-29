@@ -1,4 +1,4 @@
-package com.openclassrooms.services;
+package com.openclassrooms.starterjwt.services;
 
 
 import com.openclassrooms.starterjwt.models.Session;

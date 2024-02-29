@@ -1,4 +1,4 @@
-package com.openclassrooms.mapper;
+package com.openclassrooms.starterjwt.mapper;
 
 import com.openclassrooms.starterjwt.dto.UserDto;
 import com.openclassrooms.starterjwt.mapper.UserMapperImpl;
@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -77,5 +79,57 @@ public class UserMapperTest {
         assertEquals(user.getUpdatedAt(), userDto.getUpdatedAt());
     }
 
-    // Tests pour les méthodes de listes (similaires aux précédents, mais avec des listes)
+    @Test
+    void testToEntityList() {
+        List<UserDto> userDtos = Arrays.asList(
+                new UserDto(1L, "user1@test.com", "Doe", "John", true, "passwordSecret", LocalDateTime.now(), LocalDateTime.now()),
+                new UserDto(2L, "user2@test.com", "Smith", "Jane", false, "passwordSecret", LocalDateTime.now(), LocalDateTime.now())
+        );
+
+        List<User> users = userMapper.toEntity(userDtos);
+
+        assertNotNull(users);
+        assertEquals(userDtos.size(), users.size());
+
+        for (int i = 0; i < userDtos.size(); i++) {
+            UserDto dto = userDtos.get(i);
+            User entity = users.get(i);
+
+            assertEquals(dto.getId(), entity.getId());
+            assertEquals(dto.getEmail(), entity.getEmail());
+            assertEquals(dto.getLastName(), entity.getLastName());
+            assertEquals(dto.getFirstName(), entity.getFirstName());
+            assertEquals(dto.isAdmin(), entity.isAdmin());
+            // Le mot de passe est ignoré dans le DTO, donc pas de vérification ici
+            assertEquals(dto.getCreatedAt(), entity.getCreatedAt());
+            assertEquals(dto.getUpdatedAt(), entity.getUpdatedAt());
+        }
+    }
+
+    @Test
+    void testToDtoList() {
+        List<User> users = Arrays.asList(
+                User.builder().id(1L).email("user1@test.com").lastName("Doe").firstName("John").admin(true).password("passwordSecret").createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build(),
+                User.builder().id(2L).email("user2@test.com").lastName("Smith").firstName("Jane").admin(false).password("passwordSecret").createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build()
+        );
+
+        List<UserDto> userDtos = userMapper.toDto(users);
+
+        assertNotNull(userDtos);
+        assertEquals(users.size(), userDtos.size());
+
+        for (int i = 0; i < users.size(); i++) {
+            User entity = users.get(i);
+            UserDto dto = userDtos.get(i);
+
+            assertEquals(entity.getId(), dto.getId());
+            assertEquals(entity.getEmail(), dto.getEmail());
+            assertEquals(entity.getLastName(), dto.getLastName());
+            assertEquals(entity.getFirstName(), dto.getFirstName());
+            assertEquals(entity.isAdmin(), dto.isAdmin());
+            // Note: Le mot de passe n'est pas inclus dans le DTO
+            assertEquals(entity.getCreatedAt(), dto.getCreatedAt());
+            assertEquals(entity.getUpdatedAt(), dto.getUpdatedAt());
+        }
+    }
 }

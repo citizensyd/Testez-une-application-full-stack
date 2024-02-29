@@ -38,7 +38,7 @@ https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#
 
 ### MySQL
 
-SQL script for creating the schema is available `ressources/sql/script.sql`
+SQL script for creating the schema is available `ressources/sql/data.sql`
 
 By default the admin account is:
 - login: yoga@studio.com

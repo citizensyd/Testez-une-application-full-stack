@@ -1,4 +1,4 @@
-package com.openclassrooms.security.services;
+package com.openclassrooms.starterjwt.security.services;
 
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.UserRepository;

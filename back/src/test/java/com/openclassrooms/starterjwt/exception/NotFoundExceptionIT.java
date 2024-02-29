@@ -1,6 +1,7 @@
-package com.openclassrooms.exception;
+package com.openclassrooms.starterjwt.exception;
 
 import com.openclassrooms.starterjwt.exception.BadRequestException;
+import com.openclassrooms.starterjwt.exception.NotFoundException;
 import com.openclassrooms.starterjwt.models.Session;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.SessionRepository;
@@ -20,7 +21,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class BadRequestExceptionIT {
+public class NotFoundExceptionIT {
 
     @Mock
     private SessionRepository sessionRepository;
@@ -32,23 +33,19 @@ public class BadRequestExceptionIT {
     private SessionService sessionService;
 
     @Test
-    public void participate_WhenUserAlreadyParticipates_ShouldThrowBadRequestException() {
+    public void participate_WhenSessionOrUserNotFound_ShouldThrowNotFoundException() {
         // Arrange
         Long sessionId = 1L;
         Long userId = 1L;
-        Session session = new Session();
-        session.setUsers(new ArrayList<>());
-        User user = new User();
-        user.setId(userId);
-        session.getUsers().add(user);
 
-        when(sessionRepository.findById(anyLong())).thenReturn(Optional.of(session));
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(sessionRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(new User())); // Pour user not found, utilisez Optional.empty() ici aussi
 
         // Act & Assert
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             sessionService.participate(sessionId, userId);
         });
     }
+
 }
 
