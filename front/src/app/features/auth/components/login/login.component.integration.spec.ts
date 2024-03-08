@@ -13,7 +13,8 @@ import { SessionService } from 'src/app/services/session.service';
 import { LoginComponent } from './login.component';
 import {Router} from "@angular/router";
 import {AuthService} from "../../services/auth.service";
-import {of} from "rxjs";
+import {of, throwError} from "rxjs";
+import {By} from "@angular/platform-browser";
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -75,6 +76,48 @@ describe('LoginComponent', () => {
     });
   });
 
+  it('should display an error when the login is incorrect', () => {
+    // Simuler une réponse d'erreur de l'AuthService
+    const loginSpy = jest.spyOn(authService, 'login').mockReturnValue(throwError(() => new Error('Invalid credentials')));
 
+    // Remplir le formulaire avec des données incorrectes
+    component.form.setValue({ email: 'wrong@example.com', password: 'wrongpassword' });
+
+    // Simuler la soumission du formulaire
+    component.submit();
+
+    // Vérifier si la méthode login du AuthService a été appelée avec des données incorrectes
+    expect(authService.login).toHaveBeenCalledWith({ email: 'wrong@example.com', password: 'wrongpassword' });
+
+    // Attendre que les Promises résolvent
+    fixture.whenStable().then(() => {
+      // Vérifier si le drapeau d'erreur est activé
+      expect(component.onError).toBe(true);
+
+      // Vérifier si aucun routage n'a été effectué
+      expect(router.navigate).not.toHaveBeenCalledWith(['/sessions']);
+    });
+  });
+
+  it('should show error messages for required fields', () => {
+    // Simuler une réponse d'erreur de l'AuthService
+    const loginSpy = jest.spyOn(authService, 'login').mockReturnValue(throwError(() => new Error('Invalid credentials')));
+
+    // Simuler la soumission du formulaire avec des champs vides
+    component.form.setValue({ email: '', password: '' });
+    component.submit();
+
+    // Vérifier si les champs sont marqués comme invalides
+    expect(component.form.get('email')!.valid).toBe(false);
+    expect(component.form.get('password')!.valid).toBe(false);
+
+    // Vérifier si les messages d'erreur sont affichés
+    fixture.detectChanges(); // Déclencher la détection des changements pour mettre à jour la vue
+    expect(component.onError).toBe(true);
+    const errorElement = fixture.debugElement.query(By.css('.error')).nativeElement;
+
+    expect(errorElement).not.toBeNull();
+    expect(errorElement.textContent).toContain('An error occurred');
+  });
 
 });

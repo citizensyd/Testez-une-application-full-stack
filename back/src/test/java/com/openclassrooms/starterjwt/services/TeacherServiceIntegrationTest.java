@@ -15,7 +15,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
-public class TeacherServiceIT {
+public class TeacherServiceIntegrationTest {
 
     @Mock
     private TeacherRepository teacherRepository;
@@ -31,20 +31,19 @@ public class TeacherServiceIT {
     @Test
     public void findAll_ShouldReturnAllTeachers() {
         // Arrange
-        Teacher teacher1 = Teacher.builder()
-                .id(1L)
-                .lastName("Doe")
-                .firstName("John")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-        Teacher teacher2 = Teacher.builder()
-                .id(2L)
-                .lastName("Smith")
-                .firstName("Anna")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        Teacher teacher1 = new Teacher();
+        teacher1.setId(1L);
+        teacher1.setLastName("Doe");
+        teacher1.setFirstName("John");
+        teacher1.setCreatedAt(LocalDateTime.now());
+        teacher1.setUpdatedAt(LocalDateTime.now());
+
+        Teacher teacher2 = new Teacher();
+        teacher2.setId(2L);
+        teacher2.setLastName("Smith");
+        teacher2.setFirstName("Anna");
+        teacher2.setCreatedAt(LocalDateTime.now());
+        teacher2.setUpdatedAt(LocalDateTime.now());
         given(teacherRepository.findAll()).willReturn(Arrays.asList(teacher1, teacher2));
 
         // Act

@@ -1,6 +1,5 @@
 package com.openclassrooms.starterjwt.exception;
 
-import com.openclassrooms.starterjwt.exception.BadRequestException;
 import com.openclassrooms.starterjwt.models.Session;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.SessionRepository;
@@ -20,7 +19,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class BadRequestExceptionIT {
+public class BadRequestExceptionTest {
 
     @Mock
     private SessionRepository sessionRepository;
